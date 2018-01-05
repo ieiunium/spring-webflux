@@ -1,0 +1,8 @@
+dependencies {
+    compile "org.mongodb.morphia:morphia:${mongo_morphia_version}"
+    compile "javax.persistence:persistence-api:1.0.2"
+    compile "io.projectreactor:reactor-core:3.1.2.RELEASE"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.9.2"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.2"
+}

@@ -1,0 +1,27 @@
+repositories {
+    maven {
+        url "http://repo.spring.io/milestone/"
+    }
+}
+
+apply plugin: 'application'
+
+mainClassName = 'com.epam.brest.flux.app.ReactiveApplication'
+
+dependencies {
+    compile project(':webflux-dao')
+    // https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-reactivestreams
+    compile group: 'org.mongodb', name: 'mongodb-driver-reactivestreams', version: '1.7.0'
+    compile "org.springframework:spring-webflux:${spring_version}"
+//    compile "io.netty:netty-buffer:4.1.19.Final"
+    compile "io.projectreactor.ipc:reactor-netty:0.7.2.RELEASE"
+    compile "com.fasterxml.jackson.core:jackson-databind:2.9.2"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.2"
+
+    compile "com.github.javafaker:javafaker:0.12"
+
+    testCompile "org.springframework:spring-test:${spring_version}"
+    testCompile "org.easymock:easymock:3.4"
+    testCompile "io.projectreactor:reactor-test:3.1.2.RELEASE"
+}

@@ -1,0 +1,22 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+group 'com.epam.brest.flux'
+version '1.0-SNAPSHOT'
+
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile "ch.qos.logback:logback-classic:1.2.3"
+        compileOnly "org.projectlombok:lombok:${lombok_version}"
+        testCompile "junit:junit:${junit_version}"
+    }
+}

@@ -1,0 +1,5 @@
+rootProject.name = 'spring-webflux'
+include 'webflux-model'
+include 'webflux-dao'
+include 'webflux-rest'
+
