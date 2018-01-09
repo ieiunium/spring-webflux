@@ -52,7 +52,7 @@ public class TaskReactiveHandler {
         Mono<Task> taskToUpdate = request
                 .bodyToMono(Task.class)
                 .doOnError(error -> log.error("Shit happens: {}", error.getMessage()));
-        Mono<Task> updatedTask = taskRepository.save(taskToUpdate.block());
+        Mono<Task> updatedTask = taskRepository.insert(taskToUpdate).next();
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(updatedTask, Task.class);

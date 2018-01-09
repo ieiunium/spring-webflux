@@ -13,51 +13,48 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 import com.epam.brest.flux.handler.TaskReactiveHandler;
 import com.epam.brest.flux.handler.UserReactiveHandler;
-import com.mongodb.ConnectionString;
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-import reactor.core.publisher.Flux;
 import reactor.ipc.netty.NettyContext;
 import reactor.ipc.netty.http.server.HttpServer;
 
+import javax.sql.DataSource;
+
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = {"com.epam.brest.flux.dao"})
-@ComponentScan(basePackages = {"com.epam.brest.flux.*"})
+@ComponentScan(basePackages = {"com.epam.brest.flux.controller",
+        "com.epam.brest.flux.handler",
+        "com.epam.brest.flux.dao.jdbc"})
 @EnableWebFlux
-@Profile({"mongo"})
-public class ReactiveConfig extends AbstractReactiveMongoConfiguration {
-
-    @Override
-    protected String getDatabaseName() {
-        return "spring_reactive";
-    }
-
-    @Override
-    public MongoClient reactiveMongoClient() {
-        MongoClient client = MongoClients.create(new ConnectionString("mongodb://localhost:27017"));
-        Flux.from(client.listDatabaseNames()).doOnEach(System.out::println);
-        return client;
-    }
-
-    @Bean
-    @Profile("functional")
-    public HttpHandler httpHandlerFunctional(RouterFunction<ServerResponse> router) {
-        return RouterFunctions.toHttpHandler(router);
-    }
+@Profile("jdbc")
+@PropertySource("classpath:test-db.properties")
+public class TestJDBCConfig {
+    @Value("classpath:test-tables-init.sql")
+    private Resource schemaScript;
+    @Value("classpath:test-tables-populate.sql")
+    private Resource dataPopulationScript;
 
     @Bean
     @Profile("functional")
@@ -77,8 +74,10 @@ public class ReactiveConfig extends AbstractReactiveMongoConfiguration {
                                 .andRoute(DELETE("/{id}").and(accept(APPLICATION_JSON)), taskReactiveHandler::deleteTask));
     }
 
+    @Autowired
+    private Environment env;
+
     @Bean
-    @Profile("annotation")
     public HttpHandler httpHandlerAnnotation(ApplicationContext context) {
         return WebHttpHandlerBuilder.applicationContext(context).build();
     }
@@ -89,4 +88,42 @@ public class ReactiveConfig extends AbstractReactiveMongoConfiguration {
         HttpServer httpServer = HttpServer.create("localhost", 8090);
         return httpServer.newHandler(adapter).block();
     }
+
+    @Bean
+    DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(env.getProperty("jdbc.driver"));
+        dataSource.setUrl(env.getProperty("jdbc.url"));
+        dataSource.setUsername(env.getProperty("jdbc.username"));
+        dataSource.setPassword(env.getProperty("jdbc.password"));
+        return dataSource;
+    }
+
+    @Bean
+    @DependsOn("dataSource")
+    DataSourceInitializer initializer(final DataSource dataSource) {
+        final DataSourceInitializer initializer = new DataSourceInitializer();
+        initializer.setDataSource(dataSource);
+        initializer.setDatabasePopulator(databasePopulator());
+        return initializer;
+    }
+
+    private DatabasePopulator databasePopulator() {
+        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(schemaScript);
+        populator.addScript(dataPopulationScript);
+        return populator;
+    }
+
+    @Bean
+    PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean
+    NamedParameterJdbcOperations namedParameterJdbcTemplate() {
+        return new NamedParameterJdbcTemplate(dataSource());
+    }
+
+
 }

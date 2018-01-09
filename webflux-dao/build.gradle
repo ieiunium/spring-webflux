@@ -8,8 +8,9 @@ dependencies {
     compile project(':webflux-model')
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb
     compile("org.springframework.data:spring-data-mongodb:${spring_data_version}") {
-        exclude(group: 'org.mongodb')
+//        exclude(group: 'org.mongodb')
     }
-     compile "io.projectreactor:reactor-core:3.1.2.RELEASE"
+    compile "org.springframework:spring-jdbc:${spring_version}"
+    compile "io.projectreactor:reactor-core:3.1.2.RELEASE"
 //    compile "org.springframework:spring-webflux:${spring_version}"
 }

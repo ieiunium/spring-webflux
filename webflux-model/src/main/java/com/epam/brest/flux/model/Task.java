@@ -25,6 +25,7 @@ public class Task {
     @JsonSerialize(using = ObjectIdSerializer.class)
     @JsonDeserialize(using = ObjectIdDeserializer.class)
     private ObjectId id;
+    private Integer taskId; //for MySQL
     private String title;
     private String description;
     private LocalDate created;

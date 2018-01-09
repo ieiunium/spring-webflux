@@ -47,7 +47,7 @@ public class TaskRestControllerTest {
     private final ObjectId ID_2 = new ObjectId();
     private final ObjectId ID_3 = new ObjectId();
     private final ObjectId ID_4 = new ObjectId();
-    private final User OWNER = new User(ID_4, "TEST");
+    private final User OWNER = new User(ID_4, 0, "TEST");
     private final Task TASK_1 = Task.builder()
             .id(ID_1)
             .created(LocalDate.now().minusDays(1))

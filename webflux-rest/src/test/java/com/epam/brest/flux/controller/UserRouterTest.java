@@ -37,9 +37,9 @@ public class UserRouterTest {
     private final ObjectId ID_1 = new ObjectId();
     private final ObjectId ID_2 = new ObjectId();
     private final ObjectId ID_3 = new ObjectId();
-    private final User USER_1 = new User(ID_1, "TEST1");
-    private final User USER_2 = new User(ID_2, "TEST2");
-    private final User USER_3 = new User(ID_3, "TEST3");
+    private final User USER_1 = new User(ID_1, 0, "TEST1");
+    private final User USER_2 = new User(ID_2, 0, "TEST2");
+    private final User USER_3 = new User(ID_3, 0, "TEST3");
 
     private WebTestClient webTestClient;
     @Autowired

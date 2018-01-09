@@ -23,5 +23,6 @@ public class User {
     @JsonSerialize(using = ObjectIdSerializer.class)
     @JsonDeserialize(using = ObjectIdDeserializer.class)
     private ObjectId id;
+    private Integer userId; //for MySQL
     private String userName;
 }
