@@ -16,7 +16,7 @@ allprojects {
 
     dependencies {
         compile "ch.qos.logback:logback-classic:1.2.3"
-        compileOnly files('/mnt/sda1/home/alexander_borohov/work/Sources and libs/lombok-edge.jar')
+        compileOnly 'org.projectlombok:lombok:1.16.18'
         testCompile "junit:junit:${junit_version}"
     }
 }
